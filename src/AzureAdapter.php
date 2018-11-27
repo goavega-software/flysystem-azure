@@ -10,7 +10,7 @@ use MicrosoftAzure\Storage\Blob\Internal\IBlob;
 use MicrosoftAzure\Storage\Blob\Models\BlobPrefix;
 use MicrosoftAzure\Storage\Blob\Models\BlobProperties;
 use MicrosoftAzure\Storage\Blob\Models\CopyBlobResult;
-use MicrosoftAzure\Storage\Blob\Models\CreateBlobOptions;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsResult;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
@@ -126,13 +126,13 @@ class AzureAdapter extends AbstractAdapter
         $dirname = $this->applyPathPrefix($dirname);
 
         $options = new ListBlobsOptions();
-        $options->setPrefix($dirname . '/');
+        $options->setPrefix($dirname.'/');
 
         /** @var ListBlobsResult $listResults */
         $listResults = $this->client->listBlobs($this->container, $options);
 
         foreach ($listResults->getBlobs() as $blob) {
-            /** @var \MicrosoftAzure\Storage\Blob\Models\Blob $blob */
+            /* @var \MicrosoftAzure\Storage\Blob\Models\Blob $blob */
             $this->client->deleteBlob($this->container, $blob->getName());
         }
 
@@ -144,7 +144,7 @@ class AzureAdapter extends AbstractAdapter
      */
     public function createDir($dirname, Config $config)
     {
-        $this->write(rtrim($dirname, '/') . '/', ' ', $config);
+        $this->write(rtrim($dirname, '/').'/', ' ', $config);
 
         return ['path' => $dirname, 'type' => 'dir'];
     }
@@ -208,13 +208,13 @@ class AzureAdapter extends AbstractAdapter
         // Append trailing slash only for directory other than root (which after normalization is an empty string).
         // Listing for / doesn't work properly otherwise.
         if (strlen($directory)) {
-            $directory = rtrim($directory, '/') . '/';
+            $directory = rtrim($directory, '/').'/';
         }
 
         $options = new ListBlobsOptions();
         $options->setPrefix($directory);
 
-        if ( ! $recursive) {
+        if (!$recursive) {
             $options->setDelimiter('/');
         }
 
@@ -227,7 +227,7 @@ class AzureAdapter extends AbstractAdapter
             $contents[] = $this->normalizeBlobProperties($blob->getName(), $blob->getProperties());
         }
 
-        if ( ! $recursive) {
+        if (!$recursive) {
             $contents = array_merge(
                 $contents,
                 array_map([$this, 'normalizeBlobPrefix'], $listResults->getBlobPrefixes())
@@ -353,7 +353,7 @@ class AzureAdapter extends AbstractAdapter
      * Upload a file.
      *
      * @param string          $path     Path
-     * @param string|resource $contents Either a string or a stream.
+     * @param string|resource $contents either a string or a stream
      * @param Config          $config   Config
      *
      * @return array
@@ -382,10 +382,10 @@ class AzureAdapter extends AbstractAdapter
      */
     protected function getOptionsFromConfig(Config $config)
     {
-        $options = new CreateBlobOptions();
+        $options = new CreateBlockBlobOptions();
 
         foreach (static::$metaOptions as $option) {
-            if ( ! $config->has($option)) {
+            if (!$config->has($option)) {
                 continue;
             }
 
